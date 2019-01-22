@@ -29,6 +29,17 @@ class DBHelper: SQLiteOpenHelper {
         return exist
     }
 
+
+//    fun checkCount(): Long {
+//        var count = -1L
+//        val cursor = writableDatabase.rawQuery("select count(*) from tb_subscribe", null)
+//        if(cursor.moveToNext())
+//            count = cursor.getLong(0)
+//        Log.v("CimZzz", count.toString())
+//        cursor.close()
+//        return count
+//    }
+
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("create table tb_subscribe(id TEXT primary key)")
     }

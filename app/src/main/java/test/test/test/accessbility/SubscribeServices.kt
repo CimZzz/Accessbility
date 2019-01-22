@@ -12,13 +12,14 @@ import test.test.test.database.DBHelper
  *  Since Version : Alpha
  */
 class SubscribeServices() : AccessibilityService() {
-
+    var otherParams: Any? = null
     val dbHelper = DBHelper(this)
 
     private val accessibilityList: List<BaseAccessibility> = arrayListOf(
         FansAccessibility(this),
         UserCenterAccessibility(this),
-        FollowAccessibility(this)
+        FollowAccessibility(this),
+        ConversationGroupAccessibility(this)
     )
     var currentAccessibility: BaseAccessibility? = null
 
@@ -42,7 +43,9 @@ class SubscribeServices() : AccessibilityService() {
                 for(accessibility in accessibilityList) {
                     if(accessibility.isViewFromThis(event.className.toString())) {
                         currentAccessibility = accessibility
-                        accessibility.enter()
+                        val params = otherParams
+                        otherParams = null
+                        accessibility.enter(params?:Unit)
                         return
                     }
                 }

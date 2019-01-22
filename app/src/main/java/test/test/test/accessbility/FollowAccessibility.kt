@@ -1,5 +1,6 @@
 package test.test.test.accessbility
 
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import test.test.test.tools.CountDownTimer
@@ -30,7 +31,7 @@ class FollowAccessibility(service: SubscribeServices) : BaseAccessibility(servic
     override fun isViewFromThis(clsName: String): Boolean = clsName == VIEW
 
     override fun enter(vararg params: Any) {
-        isMine = findFirstNode(TITLE_ID)?.text?.startsWith("我的关注")?:false
+        isMine = params[0] is String && params[0] == "我的"
         if(isMine)
             startTimer()
     }
@@ -41,10 +42,12 @@ class FollowAccessibility(service: SubscribeServices) : BaseAccessibility(servic
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        when (event.eventType) {
-            AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
-                if(isMine)
+
+        if(isMine) {
+            when (event.eventType) {
+                AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
                     startTimer()
+                }
             }
         }
     }
@@ -52,7 +55,8 @@ class FollowAccessibility(service: SubscribeServices) : BaseAccessibility(servic
 
     private fun startTimer() {
         closeTimer()
-        countDownTimer = CountDownTimer(SCROLL_TIME, SCROLL_TIME) { isFinish->
+        countDownTimer = CountDownTimer(SCROLL_TIME, SCROLL_TIME) {
+            isFinish->
             val listViewNodeList = service.rootInActiveWindow.findAccessibilityNodeInfosByViewId(LIST_ID) ?: return@CountDownTimer
 
             if (listViewNodeList.size == 0)
@@ -75,8 +79,10 @@ class FollowAccessibility(service: SubscribeServices) : BaseAccessibility(servic
                         service.dbHelper.checkExists(id)
                     }
                 }
-                if(listViewNode.childCount != 0)
+                if(listViewNode.childCount != 0) {
                     listViewNode.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
+                    startTimer()
+                }
                 else startTimer()
             }
         }
